@@ -1,0 +1,59 @@
+.base-letter {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 3px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.guesses-grid {
+  width: 100%;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.guess-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.letter-gray {
+  &:extend(.base-letter);
+  color: #ffffff;
+  background-color: #676767;
+}
+
+.letter-green {
+  &:extend(.base-letter);
+  color: #ffffff;
+  background-color: #68a55a;
+}
+
+.letter-yellow {
+  &:extend(.base-letter);
+  color: #ffffff;
+  background-color: #e1b201;
+}
+
+.score-row {
+ display: flex;
+  flex-direction: row;
+}
+
+.score-letter {
+  cursor: pointer;
+  user-select: none;
+}
+
+input.ant-otp-input {
+  &:extend(.base-letter);
+  width: 58px;
+  height: 58px;
+  border-radius: 0;
+  padding: 0;
+  margin: 2px 0 10px;
+}
