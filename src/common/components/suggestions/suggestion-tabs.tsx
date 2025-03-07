@@ -2,6 +2,7 @@ import { Fragment, FunctionComponent } from "react";
 import { Tabs } from "antd";
 import { TabsProps } from "antd/lib";
 import { SuggestionList, SuggestionLists } from "./index.ts";
+import { RESULTS_SHOWN } from "../engine";
 
 type PropTypes = {
   suggestions: SuggestionLists;
@@ -24,12 +25,16 @@ export const SuggestionTabs: FunctionComponent<PropTypes> = ({
       label: "Hard Mode",
       children: (
         <Fragment>
-          <div className="explain-results">
-            Found {suggestions.hardCount.toLocaleString()} potential winners
-            where green has to be found in the same spot and yellow has to be in
-            the word.
-            {suggestions.hardCount > 10 && <> Showing top 10.</>}
-          </div>
+          {suggestions.hardCount > 1 && (
+            <div className="explain-results">
+              Found {suggestions.hardCount.toLocaleString()} potential winners
+              where green has to be found in the same spot and yellow has to be
+              in the word.
+              {suggestions.hardCount > RESULTS_SHOWN && (
+                <> Showing top {RESULTS_SHOWN}.</>
+              )}
+            </div>
+          )}
           <SuggestionList
             wordList={suggestions.hardMode}
             onClickSuggestion={onClickSuggestion}
@@ -49,7 +54,9 @@ export const SuggestionTabs: FunctionComponent<PropTypes> = ({
             Found {suggestions.easyCount.toLocaleString()} non-winners, to help
             tease out more letters. Avoiding previously guessed letters to
             maximize the discovery of new letters.
-            {suggestions.easyCount > 10 && <> Showing top 10.</>}
+            {suggestions.easyCount > RESULTS_SHOWN && (
+              <> Showing top {RESULTS_SHOWN}.</>
+            )}
           </div>
           <SuggestionList
             wordList={suggestions.easyMode}

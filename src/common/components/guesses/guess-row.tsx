@@ -11,7 +11,7 @@ export const GuessRow: FunctionComponent<PropTypes> = ({ word, colors }) => {
     <div className="guess-row" key={word}>
       {word.split("").map((char, index) => (
         <GuessLetter
-          key={`${word}-${char}`}
+          key={`${word}-${char}-${index}`}
           letter={char}
           color={colors[index]}
         />

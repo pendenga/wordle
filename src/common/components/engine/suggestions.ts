@@ -4,7 +4,9 @@ import { createDataMap, OuterMap, scoreWord } from "./data-map.ts";
 import data from "./dataMap.json";
 import words from "./wordlist.json";
 
-const easyFilter = (words: string[], guesses: Guess[]): string[] => {
+export const RESULTS_SHOWN = 6;
+
+const easyFilter = (guesses: Guess[]): string[] => {
   // build easy filter
   const guessLetters = [] as string[];
   const guessWords = [] as string[];
@@ -41,11 +43,11 @@ const easyFilter = (words: string[], guesses: Guess[]): string[] => {
   return easyWords;
 };
 
-const hardFilter = (words: string[], guesses: Guess[]): string[] => {
+const hardFilter = (guesses: Guess[]): string[] => {
   // build hard filter
-  const grays = [] as string[];
+  let grays = [] as string[];
+  let yellows = [] as string[];
   const greens = [] as string[];
-  const yellows = [] as string[];
   const yellowX = [] as string[];
   const guessWords = [] as string[];
   guesses.map((guess) => {
@@ -57,6 +59,10 @@ const hardFilter = (words: string[], guesses: Guess[]): string[] => {
         switch (guess.colors[index]) {
           case WordleColor.GREEN:
             greens[index] = letter;
+            // if a yellowX exists in the same spot, delete it
+            if (yellowX[index]) {
+              delete yellowX[index];
+            }
             break;
           case WordleColor.YELLOW:
             yellowX[index] = letter;
@@ -67,6 +73,17 @@ const hardFilter = (words: string[], guesses: Guess[]): string[] => {
             grays.push(letter);
         }
       });
+  });
+
+  // a green is in the yellows or grays, remove it
+  // TODO: look at a word that has a green and yellow|gray same letter WIDOW:GGG--
+  greens.map((letter) => {
+    if (yellows.includes(letter)) {
+      yellows = yellows.filter((l) => l != letter);
+    }
+    if (grays.includes(letter)) {
+      grays = grays.filter((l) => l != letter);
+    }
   });
 
   // apply to word list
@@ -97,12 +114,9 @@ const hardFilter = (words: string[], guesses: Guess[]): string[] => {
 
       // these can be excluded because a yellow was not found in all letters
       if (validWord && yellows.length > 0) {
-        const uniqueYellows = [...new Set(yellows)];
-        const uniqueFndYllw = [...new Set(foundYellows)];
-        uniqueYellows.sort();
-        uniqueFndYllw.sort();
+        const uniqueYellows = [...new Set(yellows.sort())];
+        const uniqueFndYllw = [...new Set(foundYellows.sort())];
         if (JSON.stringify(uniqueYellows) !== JSON.stringify(uniqueFndYllw)) {
-          console.log(`excluded based on yellows: ${word}`);
           validWord = false;
         }
       }
@@ -113,6 +127,12 @@ const hardFilter = (words: string[], guesses: Guess[]): string[] => {
     }
   });
 
+  console.log("filter sets");
+  console.log(grays);
+  console.log(greens);
+  console.log(yellows);
+  console.log(yellowX);
+
   return hardWords;
 };
 
@@ -121,8 +141,8 @@ export const generateSuggesions = (guesses: Guess[]): SuggestionLists => {
   const hard = [] as SuggestedWord[];
 
   // filter words
-  const easyWords = easyFilter(words, guesses);
-  const hardWords = hardFilter(words, guesses);
+  const easyWords = easyFilter(guesses);
+  const hardWords = hardFilter(guesses);
 
   // apply scores to words
   const dataMap = createDataMap(data) as OuterMap;
@@ -148,11 +168,12 @@ export const generateSuggesions = (guesses: Guess[]): SuggestionLists => {
   return {
     easyCount: easy.length,
     hardCount: hard.length,
-    easyMode: easy.slice(0, 10),
-    hardMode: hard.slice(0, 10),
+    easyMode: easy.slice(0, RESULTS_SHOWN),
+    hardMode: hard.slice(0, RESULTS_SHOWN),
   };
 };
 
 export const validWord = (word: string): boolean => {
-  return word.length === 5;
+  console.log(`valid word? ${word}`);
+  return words.includes(word.toLowerCase());
 };

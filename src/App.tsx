@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import wordleLogo from "./assets/wordle-icon.svg";
 import "./App.css";
-import { generateSuggesions } from "./common/components/engine";
+import { generateSuggesions, validWord } from "./common/components/engine";
 import {
   Guess,
   GuessesGrid,
@@ -33,7 +33,9 @@ function App() {
     WordleColor.GRAY,
     WordleColor.GRAY,
   ]);
-  const [api, contextHolder] = notification.useNotification();
+  const [api, contextHolder] = notification.useNotification({
+    stack: { threshold: 1 },
+  });
   const perfectGuess = [
     WordleColor.GREEN,
     WordleColor.GREEN,
@@ -41,6 +43,19 @@ function App() {
     WordleColor.GREEN,
     WordleColor.GREEN,
   ];
+
+  useEffect(() => {
+    const noGuesses = [] as Guess[];
+    setSuggestions(generateSuggesions(noGuesses));
+
+    api.open({
+      message: "Welcome",
+      description:
+        "The best starting words are below, ranked by letter-usage score. Click on one to make it your first guess, " +
+        "or use your own starting word.",
+      duration: 10,
+    });
+  }, [api]);
 
   const handleClickSuggestion = (word: string) => {
     console.log(`using suggestion (up here) ${word}`);
@@ -55,9 +70,8 @@ function App() {
   const handleOnChangeGuess = (word: string) => {
     word = word.toUpperCase();
     console.log(`onChangeGuess: ${word}`);
-    const valid = word === "GRANT";
-    if (valid) {
-      console.log("valid word");
+    // const valid = word === "GRANT";
+    if (validWord(word)) {
       setNextWord(word);
       setScoreEditDisabled(false);
       setShowEdit(ShowEdit.SCORE);
@@ -123,10 +137,10 @@ function App() {
 
   const openSuggestionsNotification = () => {
     api.open({
-      message: "Help is not far away",
+      message: "Pick your next word",
       description:
         "See the list of suggestions below, ranked by letter-usage score. Click on one to make it your next guess.",
-      duration: 1,
+      duration: 10,
     });
   };
 
@@ -134,7 +148,7 @@ function App() {
     api.open({
       message: "Get score from Wordle",
       description: `Go to Wordle and try "${word}", then come back here to enter your color score. Click on each letter to change color.`,
-      duration: 1,
+      duration: 10,
     });
   };
 

@@ -17,5 +17,5 @@ export enum ShowEdit {
 export enum ButtonLabel {
   WORD = "Word",
   SCORE = "Score",
-  HELP = "Cheat",
+  HELP = "Get help",
 }
